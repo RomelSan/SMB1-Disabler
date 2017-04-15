@@ -1,25 +1,21 @@
 ﻿# SMB1 Disabler
 # By Romel Vera (https://www.github.com/RomelSan)
 # This tool checks and can disable the insecure SMB v1 protocol
-# License: MIT
+# License: MIT 
+# Build: April 15, 2017
 
 #===========================================================================
 # Check Admin
 #===========================================================================
 function Test-IsAdmin {
-
 ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
-
 }
 
 if (!(Test-IsAdmin)){
-
 throw "Please run this script with admin priviliges"
-
 }
 else {
-
-Write-Host "Got admin"
+Write-Host "`r`nAdmin check: OK" -ForegroundColor Green
 }
 
 #===========================================================================
@@ -37,7 +33,7 @@ $inputXML = @"
     <Grid>
         <Label x:Name="label_status_server" Content="SMB1 Server:" HorizontalAlignment="Left" Margin="65,122,0,0" VerticalAlignment="Top" FontSize="36"/>
         <Label x:Name="label_status_client" Content="SMB1 Client:" HorizontalAlignment="Left" Margin="65,201,0,0" VerticalAlignment="Top" FontSize="36"/>
-        <Button x:Name="disable_SMB1" Content="Disable SMB1" HorizontalAlignment="Left" Margin="265,283,0,0" VerticalAlignment="Top" Width="259" Height="66" FontSize="36"/>
+        <Button x:Name="disable_SMB1" Content="Disable SMB1" HorizontalAlignment="Left" Margin="265,280,0,0" VerticalAlignment="Top" Width="259" Height="66" FontSize="36"/>
         <Label x:Name="label_server_result" Content="Checking..." HorizontalAlignment="Left" Margin="306,122,0,0" VerticalAlignment="Top" FontSize="36" Foreground="Red"/>
         <Label x:Name="label_client_result" Content="Checking..." HorizontalAlignment="Left" Margin="306,201,0,0" VerticalAlignment="Top" FontSize="36" Foreground="Red"/>
         <Label x:Name="label_notice" Content="SMB v1 is insecure" HorizontalAlignment="Left" Margin="65,28,0,0" VerticalAlignment="Top" FontSize="36"/>
@@ -54,6 +50,7 @@ $inputXML = $inputXML -replace 'mc:Ignorable="d"','' -replace "x:N",'N'  -replac
     $reader=(New-Object System.Xml.XmlNodeReader $xaml)
   try{$Form=[Windows.Markup.XamlReader]::Load( $reader )}
 catch{Write-Host "Unable to load Windows.Markup.XamlReader. Double-check syntax and ensure .net is installed."}
+Write-Host "Loaded XAML: OK" -ForegroundColor Green
  
 #===========================================================================
 # Store Form Objects In PowerShell
@@ -62,19 +59,21 @@ catch{Write-Host "Unable to load Windows.Markup.XamlReader. Double-check syntax 
 $xaml.SelectNodes("//*[@Name]") | %{Set-Variable -Name "WPF$($_.Name)" -Value $Form.FindName($_.Name)}
  
 Function Get-FormVariables{
-if ($global:ReadmeDisplay -ne $true){Write-host "If you need to reference this display again, run Get-FormVariables" -ForegroundColor Yellow;$global:ReadmeDisplay=$true}
-write-host "Found the following interactable elements from our form" -ForegroundColor Cyan
+Write-Host "Parsing Variables: OK" -ForegroundColor Green
+write-host "`r`nDebug: found the following interactable XAML elements" -ForegroundColor Cyan
 get-variable WPF*
 }
  
 Get-FormVariables
  
 #===========================================================================
-# Actually make the objects work
+# Functions for XAML objects
 #===========================================================================
 $WPFdisable_SMB1.IsEnabled=$false
 $global:client_info="OK"
 $global:server_info="OK"
+
+Write-Host "`r`nChecking SMB1 Protocol" -ForegroundColor Green
 
 Function check-server {
 $server_status=Get-SmbServerConfiguration
@@ -82,6 +81,7 @@ $server_status=Get-SmbServerConfiguration
         { 
             $WPFlabel_server_result.Content="Disabled"
             $global:server_info="OK"
+			Write-Host "SMB1 Protocol is currently Disabled" -ForegroundColor White
         }
     if ($server_status.EnableSMB1Protocol -eq $true)
         { 
@@ -89,6 +89,7 @@ $server_status=Get-SmbServerConfiguration
             $global:server_info="danger"
             $WPFlabel_notice.Content="SMB v1 is insecure, disable it now!"
             $WPFdisable_SMB1.IsEnabled=$true
+			Write-Host "SMB1 Protocol is currently Enabled" -ForegroundColor Yellow
         }
 }
 Function check-client {
@@ -97,6 +98,7 @@ $client_status=Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
         { 
             $WPFlabel_client_result.Content="Disabled"
             $global:client_info="OK"
+			Write-Host "SMB1 Protocol as a feature is currently Disabled" -ForegroundColor White
         }
     if ($client_status.EnableSMB1Protocol -eq "Enabled")
         { 
@@ -104,12 +106,15 @@ $client_status=Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
             $global:client_info="danger"
             $WPFlabel_notice.Content="SMB v1 is insecure, disable it now!"
             $WPFdisable_SMB1.IsEnabled=$true
+			Write-Host "SMB1 Protocol as a feature is currently Enabled" -ForegroundColor Yellow
         }
 }
+
+# Function that disables SMB1 Protocol
 Function make-correction {
     if ($global:server_info="danger")
         {
-            Set-SmbServerConfiguration -EnableSMB1Protocol $false
+            Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
         }
     if ($global:client_info="danger")
         {
@@ -152,5 +157,5 @@ $msgBoxInput =  [System.Windows.MessageBox]::Show('The computer may restart, Con
 #===========================================================================
 # Shows the form
 #===========================================================================
-write-host "To show the form, run the following" -ForegroundColor Cyan
+write-host "`r`nShow GUI: OK" -ForegroundColor Green
 $Form.ShowDialog() | out-null
