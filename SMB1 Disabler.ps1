@@ -12,7 +12,8 @@ function Test-IsAdmin {
 }
 
 if (!(Test-IsAdmin)){
-throw "Please run this script with admin priviliges"
+Write-Host "`r`nPlease run this script with admin priviliges`r`n" -ForegroundColor Green
+exit
 }
 else {
 Write-Host "`r`nAdmin check: OK" -ForegroundColor Green
@@ -83,6 +84,7 @@ $server_status=Get-SmbServerConfiguration
             $global:server_info="OK"
 			Write-Host "SMB1 Protocol is currently Disabled" -ForegroundColor White
         }
+		
     if ($server_status.EnableSMB1Protocol -eq $true)
         { 
             $WPFlabel_server_result.Content="Enabled"
@@ -92,6 +94,7 @@ $server_status=Get-SmbServerConfiguration
 			Write-Host "SMB1 Protocol is currently Enabled" -ForegroundColor Yellow
         }
 }
+
 Function check-client {
 $client_status=Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
     if ($client_status.State -eq "Disabled")
@@ -100,9 +103,9 @@ $client_status=Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
             $global:client_info="OK"
 			Write-Host "SMB1 Protocol as a feature is currently Disabled" -ForegroundColor White
         }
-    if ($client_status.EnableSMB1Protocol -eq "Enabled")
+    if ($client_status.State -eq "Enabled")
         { 
-            $WPFlabel_client_resut.Content="Enabled"
+            $WPFlabel_client_result.Content="Enabled"
             $global:client_info="danger"
             $WPFlabel_notice.Content="SMB v1 is insecure, disable it now!"
             $WPFdisable_SMB1.IsEnabled=$true
@@ -112,11 +115,11 @@ $client_status=Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 
 # Function that disables SMB1 Protocol
 Function make-correction {
-    if ($global:server_info="danger")
+    if ($global:server_info -eq "danger")
         {
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
         }
-    if ($global:client_info="danger")
+    if ($global:client_info -eq "danger")
         {
             Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
         }
