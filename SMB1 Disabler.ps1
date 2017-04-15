@@ -16,8 +16,21 @@ Write-Host "`r`nPlease run this script with admin priviliges`r`n" -ForegroundCol
 exit
 }
 else {
-Write-Host "`r`nAdmin check: OK" -ForegroundColor Green
+Write-Host "`r`nAdmin Check: OK" -ForegroundColor Green
 }
+
+#===========================================================================
+# Check PowerShell Version
+#===========================================================================
+$global:powershellVersion=$PSVersionTable.PSVersion.Major
+if ($global:powershellVersion -gt 4)
+    {
+        Write-Host "PowerShell Version: OK" -ForegroundColor Green
+    }
+else
+    {
+        Write-Host "PowerShell Version: NOT OK" -ForegroundColor Yellow
+    }
 
 #===========================================================================
 # XAML
@@ -132,11 +145,6 @@ check-client
         }
 }
 
-# Main Run
-check-server
-check-client
-if ($global:server_info -eq "OK" -and $global:client_info -eq "OK"){$WPFdisable_SMB1.Content="You are OK"; $WPFlabel_notice.Content="SMB v1 is disabled"}
-
 #===========================================================================
 # Make Elements Clickable
 #===========================================================================
@@ -156,6 +164,11 @@ $msgBoxInput =  [System.Windows.MessageBox]::Show('The computer may restart, Con
             }
     }
 })
+
+# Main (Runs before showing the form)
+check-server
+check-client
+if ($global:server_info -eq "OK" -and $global:client_info -eq "OK"){$WPFdisable_SMB1.Content="You are OK"; $WPFlabel_notice.Content="SMB v1 is disabled"}
 
 #===========================================================================
 # Shows the form
