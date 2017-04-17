@@ -134,7 +134,7 @@ Function make-correction {
         }
     if ($global:client_info -eq "danger")
         {
-            Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
+            Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
         }
 check-server
 check-client

@@ -9,7 +9,13 @@ It’s a good idea to disable or remove SMB version 1.0 as a number of recent vu
 Open Powershell as Administrator and run the script.  
 If you have problems you should check your execution policies.  
 ```Powershell
+Get-ExecutionPolicy
 Set-ExecutionPolicy RemoteSigned
+```
+
+If "RemoteSigned" didn't work set temporally "Unrestricted".
+```Powershell
+Set-ExecutionPolicy Unrestricted
 ```
 ### Built on:
 - Powershell 5.1
@@ -19,6 +25,32 @@ Set-ExecutionPolicy RemoteSigned
 If you have Windows 10 or Windows Server 2016 you are good to go.
 - Powershell 5.1 : [Powershell Link](https://msdn.microsoft.com/en-us/powershell/)
 - Windows Management Framework 5.1 : [WMF Download Link](https://www.microsoft.com/en-us/download/details.aspx?id=54616)
+
+### Do it manually:
+1) Check SMB1
+```Powershell
+Get-SmbServerConfiguration | Select-Object -Property "EnableSMB1Protocol"
+```
+
+2) Disable SMB1
+```Powershell
+Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+```
+
+3) Disable SMB1 as Feature
+```Powershell
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
+```
+4) Restart computer
+
+You can propagate this via GPO:   
+You need to create and edit the policy, navigate to:  
+Computer Configuration > Windows Settings > Scripts  
+And add these lines as PowerShell script.  
+```Powershell
+Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force  
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
+```
 
 ### Important:
 If you have Active Directory you should also disable LM and NTLM v1 in GPO.  
