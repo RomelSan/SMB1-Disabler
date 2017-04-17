@@ -27,9 +27,12 @@ If you have Windows 10 or Windows Server 2016 you are good to go.
 - Windows Management Framework 5.1 : [WMF Download Link](https://www.microsoft.com/en-us/download/details.aspx?id=54616)
 
 ### Do it manually:
-1) Check SMB1
+1) Open PowerShell as Administrator
+
+2) Check SMB1
 ```Powershell
 Get-SmbServerConfiguration | Select-Object -Property "EnableSMB1Protocol"
+Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol | Select-Object -Property "State"
 ```
 
 2) Disable SMB1
@@ -37,7 +40,7 @@ Get-SmbServerConfiguration | Select-Object -Property "EnableSMB1Protocol"
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
 ```
 
-3) Disable SMB1 as Feature
+3) Disable SMB1 Feature
 ```Powershell
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
 ```
