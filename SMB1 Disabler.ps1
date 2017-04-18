@@ -135,6 +135,8 @@ Function make-correction {
     if ($global:client_info -eq "danger")
         {
             Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
+            $WPFdisable_SMB1.Content="Reboot the PC" 
+            $WPFlabel_notice.Content="Please, restart the PC"
         }
 check-server
 check-client
@@ -149,7 +151,7 @@ check-client
 # Make Elements Clickable
 #===========================================================================
 $WPFdisable_SMB1.Add_Click({
-$msgBoxInput =  [System.Windows.MessageBox]::Show('The computer may restart, Continue?','Warning','YesNoCancel','Warning')
+$msgBoxInput =  [System.Windows.MessageBox]::Show('The computer may restart. Continue?','Warning','YesNo','Warning')
   switch  ($msgBoxInput) 
     {
         'Yes' 
