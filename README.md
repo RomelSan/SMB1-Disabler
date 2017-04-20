@@ -1,3 +1,7 @@
+[![Builds](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/RomelSan/SMB1-Disabler/blob/master/SMB1%20Disabler.ps1)
+[![Powershell](https://img.shields.io/badge/powershell-5.1-blue.svg)](https://github.com/RomelSan/SMB1-Disabler/blob/master/SMB1%20Disabler.ps1)
+[![ISO27001](https://img.shields.io/badge/iso27001-compatible-brightgreen.svg)](https://www.iso.org/isoiec-27001-information-security.html)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/RomelSan/SMB1-Disabler/master/LICENSE.md)
 # SMB1 Disabler PS
 ### Description
 This tool checks and can disable the insecure SMB v1 protocol.  
